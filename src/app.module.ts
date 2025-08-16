@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { PuestosModule } from './modules/puestos/puestos.module';
 import { database } from './config/database.config';
-import { LoginModule } from './modules/auth/login/login.module';
+import { LoginModule } from './modules/auth/login/auth.module';
 
 @Module({
   imports: 
