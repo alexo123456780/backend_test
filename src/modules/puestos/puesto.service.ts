@@ -2,8 +2,8 @@ import { Injectable, NotFoundException, BadRequestException, flatten } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Puesto } from 'src/modules/puestos/entities/puesto.entity';
-import { CreatePuestoDTO } from '../dtos/crear-puesto.dto';
-import { UpdatePuestoDto } from '../dtos/actualizar-puesto.dto';
+import { CreatePuestoDTO } from './dtos/crear-puesto.dto';
+import { UpdatePuestoDto } from './dtos/actualizar-puesto.dto';
 
 @Injectable()
 export class PuestoService {
@@ -19,7 +19,7 @@ export class PuestoService {
 
     //registrar nuevo puesto
 
-    async Create(crearPuestoDto:CreatePuestoDTO): Promise<Puesto>{
+    async Create(crearPuestoDto:CreatePuestoDTO, usuarioCreador?: string): Promise<Puesto>{
 
         if(crearPuestoDto.puesto_superior_id){
 
@@ -32,7 +32,10 @@ export class PuestoService {
             }
         }
 
-         const puesto = this.puestosRepository.create(crearPuestoDto);
+         const puesto = this.puestosRepository.create({
+             ...crearPuestoDto,
+             usuario_creador: usuarioCreador || crearPuestoDto.usuario_creador
+         });
 
          return await this.puestosRepository.save(puesto);
 
@@ -67,7 +70,7 @@ export class PuestoService {
 
         if(filters?.nivel_jerarquico){
 
-            queryBuilder.andWhere('puesto.nivel_jerarquico = :nivel',{
+            queryBuilder.andWhere('puesto.nivel_jerarquia = :nivel',{
 
                 nivel:filters.nivel_jerarquico
             })
@@ -101,7 +104,7 @@ export class PuestoService {
 
     //actualizar puesto
 
-    async update(id:number , udapePuesto: UpdatePuestoDto):Promise<Puesto>{
+    async update(id:number , udapePuesto: UpdatePuestoDto, usuarioModificador?: string):Promise<Puesto>{
 
         const puesto = await this.findOne(id);
 
@@ -115,19 +118,25 @@ export class PuestoService {
 
         }
 
-        Object.assign(puesto,udapePuesto);
+        Object.assign(puesto, {
+            ...udapePuesto,
+            usuario_modificador: usuarioModificador || udapePuesto.usuario_modificador
+        });
 
         return await this.puestosRepository.save(puesto);
 
     }
 
 
-    //baja logica del pueesto
-    async remove(id:number):Promise<void>{
+    //baja logica del puesto
+    async remove(id:number, usuarioModificador?: string):Promise<void>{
 
         const puesto = await this.findOne(id);
 
         puesto.status = false;
+        if (usuarioModificador) {
+            puesto.usuario_modificador = usuarioModificador;
+        }
 
         await this.puestosRepository.save(puesto);
 

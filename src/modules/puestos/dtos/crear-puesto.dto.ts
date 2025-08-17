@@ -37,7 +37,7 @@ export class CreatePuestoDTO{
     @ApiPropertyOptional({description:'Estatus del puesto', default: true})
     @IsOptional()
     @IsBoolean()
-    estatus?:boolean = true;
+    status?:boolean = true;
 
     @ApiPropertyOptional({description:'Usuario que registra el puesto'})
     @IsOptional()

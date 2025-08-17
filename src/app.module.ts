@@ -5,7 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { PuestosModule } from './modules/puestos/puestos.module';
 import { database } from './config/database.config';
-import { LoginModule } from './modules/auth/login/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
+
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: 
@@ -15,9 +17,10 @@ import { LoginModule } from './modules/auth/login/auth.module';
       isGlobal:true
     }),
 
+    PassportModule,
     TypeOrmModule.forRoot(database),
     PuestosModule,
-    LoginModule
+    AuthModule,
 
   ],
   controllers: [AppController],

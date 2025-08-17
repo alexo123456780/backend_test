@@ -64,15 +64,15 @@ export class RolesGuard implements CanActivate{
 
     }
 
-    const {usuario} = context.switchToHttp().getRequest();
+    const {user} = context.switchToHttp().getRequest();
 
-    if(!usuario){
+    if(!user){
 
       throw new UnauthorizedException('Usuario no logeado');
 
     }
 
-    const hasRole = rolesRequeridos.some(role => usuario.rol === role);
+    const hasRole = rolesRequeridos.some(role => user.rol === role);
 
     if(!hasRole){
 
@@ -88,9 +88,6 @@ export class RolesGuard implements CanActivate{
 
 }
 
-
-
-
 @Injectable()
 export class LoginGuard implements CanActivate {
 
@@ -98,9 +95,9 @@ export class LoginGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean  {
     
-    const {usuario} = context.switchToHttp().getRequest();
+    const {user} = context.switchToHttp().getRequest();
 
-    if(!usuario){
+    if(!user){
 
       throw new UnauthorizedException('Usuario no logeado');
 
@@ -108,7 +105,7 @@ export class LoginGuard implements CanActivate {
     }
 
 
-    if(usuario.rol !== UserRole.Administrador){
+    if(user.rol !== UserRole.Administrador){
 
 
       throw new ForbiddenException('Solo los administradores pueden acceder')

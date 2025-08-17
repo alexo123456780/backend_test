@@ -1,10 +1,11 @@
-import { Injectable, ConflictException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Usuario, UserRole } from './entitie/user.entity';
 import { RegistroUserDto } from './dtos/register.dto';
-import { UserResponseDto } from './dtos/auth.dto';
+import { UserResponseDto, LoginDto, LoginUserResponseDto } from './dtos/auth.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 
@@ -13,10 +14,73 @@ export class AuthService {
     constructor(
 
         @InjectRepository(Usuario)
-        private userRepository: Repository<Usuario>
+        private userRepository: Repository<Usuario>,
+        private jwtService: JwtService
 
     ){}
 
+
+    async login(loginDto: LoginDto): Promise<LoginUserResponseDto> {
+        const { userName, password } = loginDto;
+        
+        const user = await this.validarLogin(userName, password);
+        
+        if (!user) {
+            throw new UnauthorizedException('Credenciales inválidas');
+        }
+        
+        return this.generarToken(user);
+    }
+
+    async validarLogin(userName: string, password: string): Promise<UserResponseDto | null> {
+        const user = await this.findbyUserName(userName);
+
+        if (!user) {
+            return null;
+        }
+
+        const passwordValidado = await this.validatePassword(password, user.password);
+
+        if (!passwordValidado) {
+            return null;
+        }
+
+        return {
+            id: user.id,
+            userName: user.userName,
+            rol: user.rol,
+            estaActivo: user.estaActivo,
+            createdAt: user.createdAt
+        };
+    }
+
+    async generarToken(user: UserResponseDto): Promise<LoginUserResponseDto> {
+        const payload = {
+            sub: user.id,
+            userName: user.userName,
+            rol: user.rol,
+        };
+
+        return {
+            access_token: this.jwtService.sign(payload),
+            user: user
+        };
+    }
+
+    async verificarToken(token: string): Promise<any> {
+        try {
+            const payload = this.jwtService.verify(token);
+            return {
+                valid: true,
+                payload: payload
+            };
+        } catch (error) {
+            return {
+                valid: false,
+                message: 'Token inválido o expirado'
+            };
+        }
+    }
 
     async registro(datos: RegistroUserDto):Promise<UserResponseDto>{
 
@@ -49,6 +113,8 @@ export class AuthService {
             rol: rol || UserRole.Viewer
 
         })
+
+        await this.userRepository.save(newUser);
 
         return this.responseNewUser(newUser);
 

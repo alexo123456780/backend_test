@@ -4,8 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from "../auth.service";
 
 export interface JtPayload {
-
-    sub: number;
+    sub: string | number;
     userName: string;
     rol: string;
 }
@@ -19,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy){
 
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: process.env.JWT_SECRET || 'clave-seguro-secret'
+            secretOrKey: process.env.JWT_SECRET || 'mi-clave-super-secreta-para-jwt-2025'
 
         })
 
@@ -29,35 +28,21 @@ export class JwtStrategy extends PassportStrategy(Strategy){
 
     async validate(payload: JtPayload){
 
-
         try{
-
-            const usuario = await this.authService.findUserbyId(payload.sub)
-
-            if(!usuario){
-
-                throw new UnauthorizedException('Token Invalido');
-
-
-            }
-
+            // Convertir el ID a number porque JWT puede devolverlo como string
+            const userId = Number(payload.sub);
+            const usuario = await this.authService.findUserbyId(userId);
 
             return {
-
                 id: usuario.id,
                 userName: usuario.userName,
                 rol: usuario.rol,
-
-            }
-
+            };
 
         }catch(error){
-
-            throw new UnauthorizedException('Token Invalido');
-
+            throw new UnauthorizedException('Token invalido o ya vencio');
 
         }
-
 
     }
 
