@@ -1,12 +1,27 @@
-import { IsString, MaxLength, IsNotEmpty, MinLength, IsEnum, IsOptional } from "class-validator";
+import { IsString,  IsNotEmpty,   } from "class-validator";
 import { UserRole } from "../entitie/user.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class LoginDto{
+
+    @ApiProperty({
+
+        description: 'userName',
+        example: 'admin'
+
+    })
 
     @IsString()
     @IsNotEmpty()
     userName: string;
 
+
+    @ApiProperty({
+
+        description: 'password',
+        example: 'prueba123'
+
+    })
     @IsString()
     @IsNotEmpty()
     password: string;

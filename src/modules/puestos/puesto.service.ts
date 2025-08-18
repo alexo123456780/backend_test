@@ -201,95 +201,58 @@ export class PuestoService {
     private buildTree(puestos: Puesto[]):Puesto[]{
 
         const puestosMap = new Map<number,Puesto>();
-
         const roots: Puesto[] = [];
 
-
+        // Crear el mapa de puestos
         puestos.forEach(puesto =>{
-
             puestosMap.set(puesto.id, {...puesto, empleados:[]})
-
-
-
         })
 
-
+        // Construir el árbol
         puestos.forEach(puesto =>{
-
             const puestoNode = puestosMap.get(puesto.id);
 
             if(puesto.puesto_superior_id){
-
+                // Tiene jefe, agregarlo como empleado del jefe
                 const parent = puestosMap.get(puesto.puesto_superior_id);
-
                 if(parent && puestoNode){
-
                     parent.empleados.push(puestoNode)
-
-                }else if(puestoNode){
-
+                }
+            } else {
+                // NO tiene jefe, es un nodo raíz
+                if(puestoNode){
                     roots.push(puestoNode);
-
                 }
             }
         })
 
         return roots;
-
-
-
-
     }
 
 
+    async getAreas(): Promise<string[]> {
+        const result = await this.puestosRepository
+            .createQueryBuilder('puesto')
+            .select('DISTINCT puesto.area_departamento', 'area')
+            .where('puesto.status = :status', { status: true })
+            .getRawMany();
+        
+        return result.map(item => item.area).filter(area => area && area.trim() !== '');
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Obtener niveles jerárquicos únicos
+    async getNivelesJerarquicos(): Promise<number[]> {
+        const result = await this.puestosRepository
+            .createQueryBuilder('puesto')
+            .select('DISTINCT puesto.nivel_jerarquia', 'nivel')
+            .where('puesto.status = :status', { status: true })
+            .orderBy('puesto.nivel_jerarquia', 'ASC')
+            .getRawMany();
+        
+        return result.map(item => item.nivel).filter(nivel => nivel != null);
+    }
 
 
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

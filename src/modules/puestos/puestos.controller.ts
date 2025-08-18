@@ -51,8 +51,21 @@ export class PuestosController {
     getOrganigrama(){
 
         return this.puestoService.getOrganigrama()
+    }
 
 
+    @Get('areas')
+    @ApiOperation({ summary: 'Obtener áreas/departamentos únicos' })
+    @ApiResponse({ status: 200, description: 'Lista de áreas obtenida correctamente' })
+    getAreas() {
+        return this.puestoService.getAreas();
+    }
+
+    @Get('niveles')
+    @ApiOperation({ summary: 'Obtener niveles jerárquicos únicos' })
+    @ApiResponse({ status: 200, description: 'Lista de niveles obtenida correctamente' })
+    getNivelesJerarquicos() {
+        return this.puestoService.getNivelesJerarquicos();
     }
 
 

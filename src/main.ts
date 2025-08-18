@@ -42,10 +42,11 @@ async function bootstrap() {
     )
     .build();
 
+    //swagger API
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Crear usuarios de prueba al iniciar la aplicación
+  // Se crean los 3 usuarios iniciales con los 3 roles para probar despues en los roles 
   const authService = app.get(AuthService);
   await authService.createDefaultUsers();
 

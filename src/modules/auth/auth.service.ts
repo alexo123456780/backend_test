@@ -190,9 +190,7 @@ export class AuthService {
     }
 
 
-    //creamos unos usuarios iniciales con los 3 roles disponibles
-
-
+    //se creo unos usuarios iniciales con los 3 roles disponibles para pruebas
     async createDefaultUsers(): Promise<void>{
 
         const defaultUsers = [
